@@ -105,12 +105,11 @@ def UNSIR_noise_train(noise, model, forget_class_label, num_epochs, noise_batch_
     opt = torch.optim.Adam(noise.parameters(), lr = 0.1)
 
     #xla_train_loader = pl.MpDeviceLoader(train_loader, xm.xla_device())
-    #xla_train_loader = pl.MpDeviceLoader(train_loader, xm.xla_device())
   
     for epoch in range(num_epochs):
         total_loss = []
-        inputs = noise()
-        labels = torch.zeros(noise_batch_size).to(device)+forget_class_label
+        inputs = noise().to(device)
+        labels = torch.zeros(noise_batch_size, device=device) + forget_class_label
         outputs = model(inputs)
         loss = -F.cross_entropy(outputs, labels.long()) + 0.1*torch.mean(torch.sum(inputs**2, [1, 2, 3]))
         opt.zero_grad()
